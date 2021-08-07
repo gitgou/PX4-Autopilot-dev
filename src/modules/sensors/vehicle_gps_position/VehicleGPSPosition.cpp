@@ -90,6 +90,7 @@ void VehicleGPSPosition::ParametersUpdate(bool force)
 			}
 		}
 
+		// 1 2 4
 		_gps_blending.setBlendingUseSpeedAccuracy(_param_sens_gps_mask.get() & BLEND_MASK_USE_SPD_ACC);
 		_gps_blending.setBlendingUseHPosAccuracy(_param_sens_gps_mask.get() & BLEND_MASK_USE_HPOS_ACC);
 		_gps_blending.setBlendingUseVPosAccuracy(_param_sens_gps_mask.get() & BLEND_MASK_USE_VPOS_ACC);
@@ -111,7 +112,7 @@ void VehicleGPSPosition::Run()
 	bool gps_updated = false;
 
 	for (uint8_t i = 0; i < GPS_MAX_RECEIVERS; i++) {
-		gps_updated = _sensor_gps_sub[i].updated();
+		gps_updated = _sensor_gps_sub[i].updated(); // 接受订阅数据
 
 		sensor_gps_s gps_data;
 
@@ -138,6 +139,7 @@ void VehicleGPSPosition::Run()
 	perf_end(_cycle_perf);
 }
 
+//position only one 是已经融合好的数据
 void VehicleGPSPosition::Publish(const sensor_gps_s &gps, uint8_t selected)
 {
 	vehicle_gps_position_s gps_output{};

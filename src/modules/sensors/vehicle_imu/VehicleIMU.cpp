@@ -191,6 +191,7 @@ void VehicleIMU::Run()
 			UpdateIntegratorConfiguration();
 		}
 
+		//陀螺仪和加速计
 		// check for additional updates and that we're fully caught up before publishing
 		if ((consume_all_gyro || _data_gap) && _sensor_gyro_sub.updated()) {
 			continue;
@@ -220,6 +221,7 @@ void VehicleIMU::Run()
 	}
 }
 
+//加速度和角速度
 bool VehicleIMU::UpdateAccel()
 {
 	bool updated = false;

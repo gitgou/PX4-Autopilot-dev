@@ -68,6 +68,7 @@
 # include "devices/src/emlid_reach.h"
 # include "devices/src/mtk.h"
 # include "devices/src/femtomes.h"
+#include "devices/src/nmea.h"
 #endif // CONSTRAINED_FLASH
 #include "devices/src/ubx.h"
 
@@ -85,7 +86,8 @@ typedef enum {
 	GPS_DRIVER_MODE_MTK,
 	GPS_DRIVER_MODE_ASHTECH,
 	GPS_DRIVER_MODE_EMLIDREACH,
-	GPS_DRIVER_MODE_FEMTOMES
+	GPS_DRIVER_MODE_FEMTOMES,
+	GPS_DRIVER_MODE_NMEA
 } gps_driver_mode_t;
 
 /* struct for dynamic allocation of satellite info data */
@@ -262,7 +264,10 @@ px4::atomic<GPS *> GPS::_secondary_instance{nullptr};
  */
 extern "C" __EXPORT int gps_main(int argc, char *argv[]);
 
-
+// mode 启动驱动模式， 与protocol无关， protocol 是配置中 GPS_i_PROTOCOL
+//Interface 接口类型
+//Instance : GPS Main /Secondary
+//path: 端口名
 GPS::GPS(const char *path, gps_driver_mode_t mode, GPSHelper::Interface interface, bool enable_sat_info,
 	 Instance instance, unsigned configured_baudrate) :
 	Device(MODULE_NAME),
@@ -271,6 +276,8 @@ GPS::GPS(const char *path, gps_driver_mode_t mode, GPSHelper::Interface interfac
 	_interface(interface),
 	_instance(instance)
 {
+
+	//PX4_INFO("constructor GPS, path:%s, mode:%d, interface:%d, instance:%d, configured_baudrate:%d", path, mode, (int) interface, (int)instance, configured_baudrate);
 	/* store port name */
 	strncpy(_port, path, sizeof(_port) - 1);
 	/* enforce null termination */
@@ -312,6 +319,10 @@ GPS::GPS(const char *path, gps_driver_mode_t mode, GPSHelper::Interface interfac
 		case 3: _mode = GPS_DRIVER_MODE_ASHTECH; break;
 
 		case 4: _mode = GPS_DRIVER_MODE_EMLIDREACH; break;
+
+		case 5: _mode = GPS_DRIVER_MODE_FEMTOMES; break; // why not have ???
+
+		case 6: _mode = GPS_DRIVER_MODE_NMEA; break;
 #endif // CONSTRAINED_FLASH
 		}
 	}
@@ -782,6 +793,10 @@ GPS::run()
 			_helper = new GPSDriverFemto(&GPS::callback, this, &_report_gps_pos/*, _p_report_sat_info*/);
 			set_device_type(DRV_GPS_DEVTYPE_FEMTOMES);
 			break;
+		case GPS_DRIVER_MODE_NMEA:
+			_helper = new GPSDriverNMEA(&GPS::callback, this, &_report_gps_pos,  _p_report_sat_info, heading_offset);
+			set_device_type(DRV_GPS_DEVTYPE_NMEA);
+			break;
 #endif // CONSTRAINED_FLASH
 
 		default:
@@ -931,6 +946,9 @@ GPS::run()
 				break;
 
 			case GPS_DRIVER_MODE_FEMTOMES:
+				_mode =  GPS_DRIVER_MODE_NMEA;
+				break;
+			case GPS_DRIVER_MODE_NMEA:
 #endif // CONSTRAINED_FLASH
 				_mode = GPS_DRIVER_MODE_UBX;
 				px4_usleep(500000); // tried all possible drivers. Wait a bit before next round
@@ -991,6 +1009,9 @@ GPS::print_status()
 
 	case GPS_DRIVER_MODE_FEMTOMES:
 		PX4_INFO("protocol: FEMTOMES");
+		break;
+	case GPS_DRIVER_MODE_NMEA:
+		PX4_INFO("protocol: NMEA");
 		break;
 #endif // CONSTRAINED_FLASH
 
@@ -1302,6 +1323,8 @@ GPS *GPS::instantiate(int argc, char *argv[], Instance instance)
 
 			} else if (!strcmp(myoptarg, "fem")) {
 				mode = GPS_DRIVER_MODE_FEMTOMES;
+			}else if (!strcmp(myoptarg, "nmea")){
+				mode = GPS_DRIVER_MODE_NMEA;
 #endif // CONSTRAINED_FLASH
 			} else {
 				PX4_ERR("unknown protocol: %s", myoptarg);

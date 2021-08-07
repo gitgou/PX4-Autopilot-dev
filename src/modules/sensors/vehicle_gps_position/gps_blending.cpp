@@ -37,7 +37,7 @@
 
 #include "gps_blending.hpp"
 
-
+// 更新gps data
 void GpsBlending::update(uint64_t hrt_now_us)
 {
 	_is_new_output_data_available = false;
@@ -121,7 +121,7 @@ bool GpsBlending::blend_gps_data(uint64_t hrt_now_us)
 
 			if (i == _primary_instance) {
 				// Allow using a secondary instance when the primary
-				// receiver has timed out
+				// receiver has timed out   Primary Gps无信号时，允许使用第二个gps
 				_fallback_allowed = true;
 			}
 
@@ -206,6 +206,7 @@ bool GpsBlending::blend_gps_data(uint64_t hrt_now_us)
 			}
 		}
 
+		//设为2 即水平精度因子
 		// calculate the sum squared horizontal position accuracy across all GPS sensors
 		float horizontal_accuracy_sum_sq = 0.0f;
 
@@ -228,6 +229,7 @@ bool GpsBlending::blend_gps_data(uint64_t hrt_now_us)
 			}
 		}
 
+		// SENS_GPS_MASK 不能为 0
 		// Check if we can do blending using reported accuracy
 		bool can_do_blending = (horizontal_accuracy_sum_sq > 0.0f || vertical_accuracy_sum_sq > 0.0f
 					|| speed_accuracy_sum_sq > 0.0f);
@@ -242,6 +244,7 @@ bool GpsBlending::blend_gps_data(uint64_t hrt_now_us)
 		// calculate a weighting using the reported speed accuracy
 		float spd_blend_weights[GPS_MAX_RECEIVERS_BLEND] {};
 
+		//速度精度因子
 		if (speed_accuracy_sum_sq > 0.0f && _blend_use_spd_acc) {
 			// calculate the weights using the inverse of the variances
 			float sum_of_spd_weights = 0.0f;
@@ -263,6 +266,7 @@ bool GpsBlending::blend_gps_data(uint64_t hrt_now_us)
 			}
 		}
 
+		// 水平精度因子
 		// calculate a weighting using the reported horizontal position
 		float hpos_blend_weights[GPS_MAX_RECEIVERS_BLEND] {};
 
@@ -289,7 +293,7 @@ bool GpsBlending::blend_gps_data(uint64_t hrt_now_us)
 
 		// calculate a weighting using the reported vertical position accuracy
 		float vpos_blend_weights[GPS_MAX_RECEIVERS_BLEND] = {};
-
+		//垂直精度因子
 		if (vertical_accuracy_sum_sq > 0.0f && _blend_use_vpos_acc) {
 			// calculate the weights using the inverse of the variances
 			float sum_of_vpos_weights = 0.0f;
@@ -420,6 +424,7 @@ sensor_gps_s GpsBlending::gps_blend_states(float blend_weights[GPS_MAX_RECEIVERS
 	// index of the physical receiver with the lowest reported error
 	uint8_t gps_best_index = 0;
 
+	// 不使用uwb的高度信息
 	for (uint8_t i = 0; i < GPS_MAX_RECEIVERS_BLEND; i++) {
 		if (blend_weights[i] > best_weight) {
 			best_weight = blend_weights[i];

@@ -225,8 +225,9 @@ bool EKF2::multi_init(int imu, int mag)
 
 int EKF2::print_status()
 {
-	PX4_INFO_RAW("ekf2:%d attitude: %d, local position: %d, global position: %d\n", _instance, _ekf.attitude_valid(),
-		     _ekf.local_position_is_valid(), _ekf.global_position_is_valid());
+	PX4_INFO_RAW("ekf2:%d attitude: %d, local position: %d, global position: %d, req_sans:%d, _param_req)sans:%d, fusion_mode:%d, imu_update:%d , MASK_USE_GPS:%d\n",
+	 _instance, _ekf.attitude_valid(),
+	 _ekf.local_position_is_valid(), _ekf.global_position_is_valid(), _param_ekf2_req_nsats.get(), _params->req_nsats, _params->fusion_mode,  (int)_ekf.getImuUpdated(), MASK_USE_GPS);
 	perf_print_counter(_ecl_ekf_update_perf);
 	perf_print_counter(_ecl_ekf_update_full_perf);
 	perf_print_counter(_msg_missed_imu_perf);
@@ -312,6 +313,7 @@ void EKF2::Run()
 
 	hrt_abstime imu_dt = 0; // for tracking time slip later
 
+	//_multi_mode
 	if (_multi_mode) {
 		const unsigned last_generation = _vehicle_imu_sub.get_last_generation();
 		vehicle_imu_s imu;
@@ -625,6 +627,7 @@ void EKF2::PublishEventFlags(const hrt_abstime &timestamp)
 	_ekf.clear_warning_events();
 }
 
+// 发布全局位置信息
 void EKF2::PublishGlobalPosition(const hrt_abstime &timestamp)
 {
 	if (_ekf.global_position_is_valid() && !_preflt_checker.hasFailed()) {
@@ -1334,6 +1337,7 @@ void EKF2::UpdateAuxVelSample(ekf2_timestamps_s &ekf2_timestamps)
 	}
 }
 
+//更新气压计高度??
 void EKF2::UpdateBaroSample(ekf2_timestamps_s &ekf2_timestamps)
 {
 	// EKF baro sample
@@ -1501,6 +1505,7 @@ bool EKF2::UpdateFlowSample(ekf2_timestamps_s &ekf2_timestamps, optical_flow_s &
 	return new_optical_flow;
 }
 
+//EKF2融合 GPSData
 void EKF2::UpdateGpsSample(ekf2_timestamps_s &ekf2_timestamps)
 {
 	// EKF GPS message
@@ -1540,7 +1545,7 @@ void EKF2::UpdateGpsSample(ekf2_timestamps_s &ekf2_timestamps)
 		_ekf.setGpsData(gps_msg);
 
 		_gps_time_usec = gps_msg.time_usec;
-		_gps_alttitude_ellipsoid = vehicle_gps_position.alt_ellipsoid;
+		_gps_alttitude_ellipsoid = vehicle_gps_position.alt_ellipsoid; // 椭球高度 == 0， 没传进来
 	}
 }
 
@@ -1758,7 +1763,7 @@ int EKF2::task_spawn(int argc, char *argv[])
 	}
 
 	if (multi_mode) {
-		// Start EKF2Selector if it's not already running
+		// Start EKF2Selector if it's not already running  选择器只需要一个
 		if (_ekf2_selector.load() == nullptr) {
 			EKF2Selector *inst = new EKF2Selector();
 

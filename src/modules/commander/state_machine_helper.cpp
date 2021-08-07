@@ -312,7 +312,7 @@ main_state_transition(const vehicle_status_s &status, const main_state_t new_mai
 
 	case commander_state_s::MAIN_STATE_POSCTL:
 
-		/* need at minimum local position estimate */
+		/* need at minimum local position estimate */ // 局部位置估计有效或者全局位置估计有效
 		if (status_flags.condition_local_position_valid ||
 		    status_flags.condition_global_position_valid) {
 			ret = TRANSITION_CHANGED;
@@ -341,7 +341,7 @@ main_state_transition(const vehicle_status_s &status, const main_state_t new_mai
 
 	case commander_state_s::MAIN_STATE_AUTO_MISSION:
 
-		/* need global position, home position, and a valid mission */
+		/* need global position, home position, and a valid mission */  // 任务模式必须在global_position模式下飞行
 		if (status_flags.condition_global_position_valid &&
 		    status_flags.condition_auto_mission_available) {
 

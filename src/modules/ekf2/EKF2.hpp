@@ -370,7 +370,8 @@ private:
 
 		(ParamExtInt<px4::params::EKF2_GPS_CHECK>)
 		_param_ekf2_gps_check,	///< bitmask used to control which GPS quality checks are used
-		(ParamExtFloat<px4::params::EKF2_REQ_EPH>) _param_ekf2_req_eph,	///< maximum acceptable horiz position error (m)
+		(ParamExtFloat<px4::params::EKF2_REQ_EPH>)
+		_param_ekf2_req_eph,	///< maximum acceptable horiz position error (m)  importance
 		(ParamExtFloat<px4::params::EKF2_REQ_EPV>) _param_ekf2_req_epv,	///< maximum acceptable vert position error (m)
 		(ParamExtFloat<px4::params::EKF2_REQ_SACC>) _param_ekf2_req_sacc,	///< maximum acceptable speed error (m/s)
 		(ParamExtInt<px4::params::EKF2_REQ_NSATS>) _param_ekf2_req_nsats,	///< minimum acceptable satellite count
@@ -383,7 +384,7 @@ private:
 		// measurement source control
 		(ParamExtInt<px4::params::EKF2_AID_MASK>)
 		_param_ekf2_aid_mask,		///< bitmasked integer that selects which of the GPS and optical flow aiding sources will be used
-		(ParamExtInt<px4::params::EKF2_HGT_MODE>) _param_ekf2_hgt_mode,	///< selects the primary source for height data
+		(ParamExtInt<px4::params::EKF2_HGT_MODE>) _param_ekf2_hgt_mode,	///< selects the primary source for height data use baro
 		(ParamExtInt<px4::params::EKF2_TERR_MASK>)
 		_param_ekf2_terr_mask, ///< bitmasked integer that selects which of range finder and optical flow aiding sources will be used for terrain estimation
 		(ParamExtInt<px4::params::EKF2_NOAID_TOUT>)

@@ -745,7 +745,7 @@ void EKF2Selector::Run()
 
 		} else if (_request_instance.load() != INVALID_INSTANCE) {
 
-			const uint8_t new_instance = _request_instance.load();
+			const uint8_t new_instance = _request_instance.load();  // 可以手动选择 instance
 
 			// attempt to switch to user manually selected instance
 			if (!SelectInstance(new_instance)) {
