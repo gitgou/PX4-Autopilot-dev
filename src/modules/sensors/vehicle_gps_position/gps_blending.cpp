@@ -42,7 +42,7 @@ void GpsBlending::update(uint64_t hrt_now_us)
 {
 	_is_new_output_data_available = false;
 
-	// blend multiple receivers if available
+	// blend multiple receivers if available  失敗
 	if (!blend_gps_data(hrt_now_us)) {
 		// Only use selected receiver data if it has been updated
 		uint8_t gps_select_index = 0;
@@ -80,6 +80,7 @@ void GpsBlending::update(uint64_t hrt_now_us)
 			gps_select_index = _primary_instance;
 		}
 
+		//融合失敗了， 但是Prime == updated_instance 则会发布vehicle_gps_position
 		_selected_gps = gps_select_index;
 		_is_new_output_data_available =  _gps_updated[gps_select_index];
 
@@ -89,9 +90,10 @@ void GpsBlending::update(uint64_t hrt_now_us)
 	}
 }
 
+
 bool GpsBlending::blend_gps_data(uint64_t hrt_now_us)
 {
-	/*
+	/* 关于 计算超时TIME_OUT
 	 * If both receivers have the same update rate, use the oldest non-zero time.
 	 * If two receivers with different update rates are used, use the slowest.
 	 * If time difference is excessive, use newest to prevent a disconnected receiver

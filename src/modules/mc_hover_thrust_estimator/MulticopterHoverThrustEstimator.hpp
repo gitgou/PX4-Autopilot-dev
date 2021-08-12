@@ -95,7 +95,7 @@ private:
 
 	ZeroOrderHoverThrustEkf _hover_thrust_ekf{};
 
-	uORB::Publication<hover_thrust_estimate_s> _hover_thrust_ekf_pub{ORB_ID(hover_thrust_estimate)};
+	uORB::Publication<hover_thrust_estimate_s> _hover_thrust_ekf_pub{ORB_ID(hover_thrust_estimate)}; // only publish to MultiCoperPosition
 
 	uORB::SubscriptionCallbackWorkItem _vehicle_local_position_sub{this, ORB_ID(vehicle_local_position)};
 

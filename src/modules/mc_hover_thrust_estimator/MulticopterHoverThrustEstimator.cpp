@@ -36,7 +36,7 @@
  *
  * @author Mathieu Bresciani 	<brescianimathieu@gmail.com>
  */
-
+// 多旋翼悬停油门估计
 #include "MulticopterHoverThrustEstimator.hpp"
 
 #include <mathlib/mathlib.h>
@@ -96,6 +96,7 @@ void MulticopterHoverThrustEstimator::Run()
 		return;
 	}
 
+	//推力， 高度 ??
 	if (_vehicle_land_detected_sub.updated()) {
 		vehicle_land_detected_s vehicle_land_detected;
 
@@ -123,7 +124,7 @@ void MulticopterHoverThrustEstimator::Run()
 		// this use case.
 		// TODO: improve the landed flag
 		if (!_landed) {
-			if (local_pos.dist_bottom > 1.f) {
+			if (local_pos.dist_bottom > 1.f) {   // > 1算是在空中
 				_in_air = true;
 			}
 		}
@@ -157,6 +158,7 @@ void MulticopterHoverThrustEstimator::Run()
 	const float dt = (local_pos.timestamp - _timestamp_last) * 1e-6f;
 	_timestamp_last = local_pos.timestamp;
 
+	//_armed == false
 	if (_armed && _in_air && (dt > 0.001f) && (dt < 1.f) && PX4_ISFINITE(local_pos.az)) {
 
 		_hover_thrust_ekf.predict(dt);

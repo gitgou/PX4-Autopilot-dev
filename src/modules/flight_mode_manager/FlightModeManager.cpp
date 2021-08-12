@@ -458,6 +458,7 @@ void FlightModeManager::generateTrajectorySetpoint(const float dt,
 
 	if (_current_task.task->updateInitialize() && _current_task.task->update() && _current_task.task->updateFinalize()) {
 		// setpoints and constraints for the position controller from flighttask
+		//来自飞行任务的位置控制器的设置点和约束
 		setpoint = _current_task.task->getPositionSetpoint();
 		constraints = _current_task.task->getConstraints();
 	}

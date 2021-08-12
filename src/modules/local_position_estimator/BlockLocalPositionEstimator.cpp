@@ -5,6 +5,8 @@
 #include <matrix/math.hpp>
 #include <cstdlib>
 
+// NOT RUNNING
+
 orb_advert_t mavlink_log_pub = nullptr;
 
 // required standard deviation of estimate for estimator to publish data

@@ -172,7 +172,7 @@ Navigator::run()
 	while (!should_exit()) {
 
 		/* wait for up to 1000ms for data */
-		int pret = px4_poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), 1000);
+		int pret = px4_poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), 1000);   ///  非常重要
 
 		if (pret == 0) {
 			/* Let the loop run anyway, don't do `continue` here. */

@@ -288,7 +288,7 @@ MulticopterAttitudeControl::Run()
 		}
 
 		bool attitude_setpoint_generated = false;
-
+		//是否悬停
 		const bool is_hovering = (_vehicle_type_rotary_wing && !_vtol_in_transition_mode);
 
 		// vehicle is a tailsitter in transition mode

@@ -225,6 +225,7 @@ bool EKF2::multi_init(int imu, int mag)
 
 int EKF2::print_status()
 {
+	_ekf.print_status();
 	PX4_INFO_RAW("ekf2:%d attitude: %d, local position: %d, global position: %d, req_sans:%d, _param_req)sans:%d, fusion_mode:%d, imu_update:%d , MASK_USE_GPS:%d\n",
 	 _instance, _ekf.attitude_valid(),
 	 _ekf.local_position_is_valid(), _ekf.global_position_is_valid(), _param_ekf2_req_nsats.get(), _params->req_nsats, _params->fusion_mode,  (int)_ekf.getImuUpdated(), MASK_USE_GPS);
@@ -416,16 +417,17 @@ void EKF2::Run()
 			vehicle_status_s vehicle_status;
 
 			if (_status_sub.copy(&vehicle_status)) {
+				//多旋翼 vehicle_type == 1
 				const bool is_fixed_wing = (vehicle_status.vehicle_type == vehicle_status_s::VEHICLE_TYPE_FIXED_WING);
 
 				// only fuse synthetic sideslip measurements if conditions are met
-				_ekf.set_fuse_beta_flag(is_fixed_wing && (_param_ekf2_fuse_beta.get() == 1));
+				_ekf.set_fuse_beta_flag(is_fixed_wing && (_param_ekf2_fuse_beta.get() == 1)); //  ==false
 
 				// let the EKF know if the vehicle motion is that of a fixed wing (forward flight only relative to wind)
 				_ekf.set_is_fixed_wing(is_fixed_wing);
 
 				_preflt_checker.setVehicleCanObserveHeadingInFlight(vehicle_status.vehicle_type !=
-						vehicle_status_s::VEHICLE_TYPE_ROTARY_WING);
+						vehicle_status_s::VEHICLE_TYPE_ROTARY_WING);   // false
 
 				_armed = (vehicle_status.arming_state == vehicle_status_s::ARMING_STATE_ARMED);
 
@@ -445,7 +447,7 @@ void EKF2::Run()
 			vehicle_land_detected_s vehicle_land_detected;
 
 			if (_vehicle_land_detected_sub.copy(&vehicle_land_detected)) {
-				_ekf.set_in_air_status(!vehicle_land_detected.landed);
+				_ekf.set_in_air_status(!vehicle_land_detected.landed); // 是否在飞行空中
 
 				if (_armed && (_param_ekf2_gnd_eff_dz.get() > 0.f)) {
 					if (!_had_valid_terrain) {

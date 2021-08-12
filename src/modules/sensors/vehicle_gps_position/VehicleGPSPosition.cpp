@@ -152,7 +152,7 @@ void VehicleGPSPosition::Publish(const sensor_gps_s &gps, uint8_t selected)
 	gps_output.alt_ellipsoid = gps.alt_ellipsoid;
 	gps_output.s_variance_m_s = gps.s_variance_m_s;
 	gps_output.c_variance_rad = gps.c_variance_rad;
-	gps_output.eph = gps.eph;
+	gps_output.eph = gps.eph; // 取小的
 	gps_output.epv = gps.epv;
 	gps_output.hdop = gps.hdop;
 	gps_output.vdop = gps.vdop;
